@@ -6,20 +6,45 @@
 </p>
 
 <p align="center">
+  <a href="#quickstart">Quickstart</a> ·
+  <a href="#add-it-to-your-workflow">Add it to your workflow</a> ·
+  <a href="#find-what-exists-with-genter">With Genter</a> ·
+  <a href="#genter-cloud-the-decisions-behind-the-code">Genter Cloud</a> ·
+  <a href="#the-method">The method</a>
+</p>
+
+<p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0"></a>
   <img src="https://img.shields.io/badge/dependencies-0-brightgreen" alt="dependencies: 0">
   <img src="https://img.shields.io/badge/node-%E2%89%A518-339933" alt="node >= 18">
   <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent%20Skill-hardening--changes-8A2BE2" alt="Agent Skill"></a>
 </p>
 
-"Make share links expire." A coding agent will happily write that in ten minutes, guessing the duration, breaking
-revoke, and leaving no trace of why. A request is a hypothesis written by someone who doesn't see the system. harden
-turns it into a **brief** first: what the change is for, where the truth lives, what must not break, what is still
-open, and how it will be proved. Then it keeps the product's **red lines** and the tests that check them in step,
-change after change.
+**A Claude Code plugin.** Install it, then ask for a change the way you always do. Before writing code, the agent
+writes a **brief**: what the change is for, what already exists (found with [genter-cli](https://github.com/Genterai/genter),
+which comes with the plugin), what must not break, and what it has to ask you. Then it builds, and one check in CI
+keeps the product's **red lines** and the tests that prove them in step, change after change.
 
-It is three things: a method, an [Agent Skill](skills/hardening-changes/SKILL.md) that walks Claude (or any agent
-that reads skills) through it, and `harden`, a zero-dependency check for CI.
+"Make share links expire." A coding agent will happily write that in ten minutes. It guesses the duration, breaks
+revoke and leaves no trace of why. A request is a hypothesis written by someone who doesn't see the system. harden makes
+the agent find out first, and ask only what it could not find.
+
+```bash
+claude plugin marketplace add Genterai/harden
+claude plugin install harden@harden
+```
+
+```
+your-repo/
+├── harden/
+│   ├── redlines/<area>.md        what must stay true, one line per id; tests name them [rl:area/id]
+│   ├── briefs/<date>-<slug>.md   one brief per change, written before the code
+│   └── retired.txt               removed ids, never reused
+├── AGENTS.md                     the loop, for every agent on the team
+└── .github/
+    ├── pull_request_template.md  "Brief: harden/briefs/<file>.md" on every PR
+    └── workflows/harden.yml      harden check: red lines, briefs and test tags agree
+```
 
 ## What it looks like
 
@@ -63,23 +88,27 @@ there.
 
 ## Quickstart
 
-**1. Give your agent the skill.**
-
-Claude Code:
+**1. Install the plugin.** It brings the skill, the `harden` check, and genter-cli's MCP server, `genter`.
 
 ```bash
 claude plugin marketplace add Genterai/harden
 claude plugin install harden@harden
 ```
 
-(or, inside a session, `/plugin marketplace add Genterai/harden` and `/plugin install harden@harden`.)
+(Or, inside a session, `/plugin marketplace add Genterai/harden` and `/plugin install harden@harden`.)
 
-Any other agent that reads [Agent Skills](https://agentskills.io): copy
-[`skills/hardening-changes/`](skills/hardening-changes) into its skills folder (for Claude Code without the plugin:
-`.claude/skills/` in your repository, or `~/.claude/skills/`). On claude.ai, upload that folder as a ZIP in your
-skills settings.
+Any other agent that reads [Agent Skills](https://agentskills.io): copy [`skills/hardening-changes/`](skills/hardening-changes)
+into its skills folder and add genter-cli as an MCP server (`npx -y genter-cli mcp`). On claude.ai, upload that folder
+as a ZIP in your skills settings.
 
-**2. Start `harden/` in your repository.**
+**2. Turn on ranking by meaning** (recommended): the agent finds what exists from its own words, not only the code's.
+
+```bash
+export GENTER_SEMANTIC=1
+export OPENAI_API_KEY=sk-...    # or OPENROUTER_API_KEY, AI_GATEWAY_API_KEY; or Ollama, and nothing leaves the computer
+```
+
+**3. Start `harden/` in your repository.**
 
 ```bash
 cd your-repo
@@ -88,53 +117,99 @@ harden init --area sharing
 harden check
 ```
 
-`init` makes `harden/` with one area, the brief template, `retired.txt` and `config.json`. Edit
-`harden/redlines/sharing.md`: its `Sources:` (the code of the area, in backticks) and three to ten red lines that
-people rely on there. Don't write the whole product down; red lines grow with each change.
+Edit `harden/redlines/sharing.md`. Set its `Sources:` (the code of the area, in backticks) and write three to ten red
+lines that people rely on there. Don't write the whole product down: red lines grow with each change.
 
-**3. Ask for a change, the way you always do.**
+**4. Ask for a change, the way you always do.**
 
 ```
 > make share links expire
 ```
 
-The skill triggers on its own. The agent reads the red lines, searches what exists, writes the brief, asks its
-blocking questions with a proposal each, and only then builds. Prefer to start one yourself:
+The skill starts on its own. The agent reads the red lines, searches what exists with `genter_find`, writes the brief,
+asks its blocking questions with a proposal for each, and only then builds. To start a brief yourself:
 `harden new "Share links expire"`.
 
-**4. Put the check in CI.**
+## Add it to your workflow
 
-```yaml
-# .github/workflows/harden.yml
-name: harden
-on: [pull_request]
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v5
-        with: { node-version: 22 }
-      - run: npm install -g github:Genterai/harden#2f9600792d93206b663c6c91bb6189de42412315
-      - run: harden check --base origin/${{ github.base_ref }}
-```
+### What a change looks like
 
-Every PR that changes code an area names now carries one line, which the check reads from the PR:
+| | Without harden | With harden |
+| -- | -- | -- |
+| A request arrives | the agent starts coding | the agent reads the red lines of the areas it touches |
+| What exists | it greps the names it guesses | `genter_find` returns the code, tests and earlier briefs that answer, with `path:lines` |
+| A gap | filled silently with a guess | a blocking question with a proposal, and the work waits; you answer "yes" |
+| The code | matches the request | matches the brief; when reality disagrees, the brief changes first |
+| The tests | whatever was written | the ones the brief's Proof names, tagged `[rl:area/id]` |
+| The pull request | a diff | a diff plus `Brief: harden/briefs/…`, and red lines folded into `harden/redlines/` |
+| Six months later | "why does it do this?" | the brief says why, and the check fails if a red line loses its test |
 
-```
-Brief: harden/briefs/2026-10-14-share-links-expire.md
-Brief: none - a rename, no behaviour changes
-```
+### An existing repository
 
-**5. Optional: give the agent [Genter](docs/with-genter.md)**, so step 2 reads your code, tickets and docs as they are
-now:
+[`examples/workflow/`](examples/workflow) holds the three files to copy:
 
-```bash
-claude mcp add genter -- npx -y genter-cli mcp
-```
+1. **Install the plugin** and run `harden init --area <area>` for the area of your next change. Leave the rest of the
+   product for later: each change adds the red lines of the areas it touches.
+2. **Tell every agent the loop**: append [`AGENTS.md`](examples/workflow/AGENTS.md) to your `AGENTS.md` or
+   `CLAUDE.md`. Agents without the plugin (Cursor, Codex, a teammate's setup) follow it too.
+3. **Every PR names its brief**: [`pull_request_template.md`](examples/workflow/pull_request_template.md) goes to
+   `.github/`.
 
-### Try it first on the example
+   ```
+   Brief: harden/briefs/2026-10-14-share-links-expire.md
+   Brief: none - a rename, no behaviour changes
+   ```
+
+4. **CI keeps it honest**: [`harden.yml`](examples/workflow/harden.yml) goes to `.github/workflows/`. It runs
+   `harden check --base`, which reads the PR's `Brief:` line.
+5. **Already have specs?** Keep their ids and their test tags:
+   [adopting.md](skills/hardening-changes/references/adopting.md) maps every part of a spec to a red line or a brief.
+
+### A new project
+
+Run `harden init` on the first day, before there is much code. Write the red lines as the first features land: one
+area per part of the product, a few lines each. Every later change starts from what is already true, and the check
+fails the day a red line loses its test.
+
+## Find what exists, with Genter
+
+Most of the cost of a brief is finding what already exists and what was already decided. The plugin brings
+[genter-cli](https://github.com/Genterai/genter) for that. It resolves a question to the place its answer is written (a
+file and its lines) and reads that place again at every question, so a brief never cites a stale copy. The principle is
+the same as a brief's Sources: reference the truth, never copy it.
+
+| Step | With `grep` | With genter-cli |
+| -- | -- | -- |
+| 2. What exists | guess the names, read every hit | "where do we check who may see revenue?" returns the passages that answer, with `path:lines` |
+| 2. Each Open line | often skipped | one search per question before it is written, so a question the code answers never reaches you |
+| 3. Sources | the paths you happened to find | `path:lines` that were just read |
+| A question in other words | no hit | with meaning on: "is a skipped test counted as proof?" finds the section on proof |
+
+With `GENTER_SEMANTIC=1` and an embeddings key, Genter ranks by meaning as well as by words. On genter-cli's
+[DriftBench](https://github.com/Genterai/genter#benchmarks), that raises current answers from 77% to 88%. Without a key
+it ranks by words and nothing leaves your computer. The method works without Genter too, with `grep` and `git log`. It
+is slower, not different. More: [docs/with-genter.md](docs/with-genter.md).
+
+## Genter Cloud: the decisions behind the code
+
+Why the code does what it does is usually written in a ticket, a Slack thread or an email. [Genter Cloud](https://genter.ai)
+connects GitHub, Linear, Slack, Gmail, Notion and 500 more apps, keeps them current from their own events, and the
+same `genter_find` then searches your repository first and your apps second. It is optional.
+
+1. Sign up at [genter.ai](https://genter.ai) and connect the apps where your team decides things.
+2. Make a token in Settings → API tokens.
+3. Sign in once. The plugin's `genter` server picks it up:
+
+   ```bash
+   npx genter-cli login gnt_...    # or export GENTER_TOKEN=gnt_...
+   ```
+
+4. Ask for a change as before. A brief's Sources now cite the ticket and the thread a rule came from. A question that
+   was already answered in chat becomes `Decided:` with who decided it and when, instead of reaching you again.
+
+Genter Cloud also gives each agent its own MCP URL with `search` and `read`, for clients that don't run genter-cli.
+
+## Try it on the example
 
 ```bash
 git clone https://github.com/Genterai/harden && cd harden/examples/notes
@@ -176,14 +251,6 @@ Layer 3 matters more than it looks: on [Genter](docs/methodology.md#case-genter)
 lines, while layer 2 counted every one of them as covered. Setup for CI and for each test runner:
 [red-line-tests.md](skills/hardening-changes/references/red-line-tests.md).
 
-## Faster with Genter
-
-Most of the cost of a brief is finding what exists and what was decided. [genter-cli](https://github.com/Genterai/genter)
-reads your folders, files and websites as they are at each question, never a stale copy; [Genter Cloud](https://genter.ai)
-adds your tickets, chats, mail and docs. With either connected, the skill searches there first, and questions the
-code already answers never reach the owner. What we saw, and how to measure it on your team:
-[docs/with-genter.md](docs/with-genter.md).
-
 ## Commands
 
 | Command | Does |
@@ -204,10 +271,11 @@ on it with "GitFetcher requires an Arborist constructor". Node 18 or later, no d
 | -- | -- |
 | [`skills/hardening-changes/`](skills/hardening-changes) | the skill: `SKILL.md`, its references, templates and the `harden` script |
 | [`docs/`](docs) | the method, and working with Genter |
-| [`examples/notes/`](examples/notes) | the quickstart's example app |
+| [`examples/notes/`](examples/notes) | a tiny app to try it on |
+| [`examples/workflow/`](examples/workflow) | the files that put harden into a repository's workflow |
 | [`evals/evals.json`](evals/evals.json) | prompts and assertions to test the skill, with and without it |
 | [`harden/`](harden) | this repository's own red lines: the check is its own first user |
-| [`.claude-plugin/`](.claude-plugin) | the Claude Code plugin and marketplace |
+| [`.claude-plugin/`](.claude-plugin) | the Claude Code plugin (the skill and genter-cli's MCP server) and marketplace |
 
 ## Questions
 
@@ -217,6 +285,9 @@ code, where Sources point.
 
 **Does it need Claude?** No. The check is plain Node and the files are Markdown. The skill follows the Agent Skills
 format, so any agent that reads skills can use it, and people can follow the method by hand.
+
+**Does it need Genter?** No. genter-cli comes with the plugin because it makes step 2 fast, and Genter Cloud is
+optional. Without either, the agent searches with `grep` and `git log`: slower, not different.
 
 **We already have specs.** Keep their ids and their test tags: [adopting.md](skills/hardening-changes/references/adopting.md)
 maps every part of a spec to a red line or a brief.

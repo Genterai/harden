@@ -1,6 +1,6 @@
 {
   "name": "@genterai/harden",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Harden change requests before code: briefs, red lines that tests tag, and the check that keeps them in step.",
   "type": "module",
   "bin": { "harden": "skills/hardening-changes/scripts/harden.mjs" },

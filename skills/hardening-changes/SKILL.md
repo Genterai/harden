@@ -54,9 +54,10 @@ decisions, contracts and conventions govern it, in the code, the tests, earlier 
 patterns beat new ones, including a sibling product's: a second implementation of something that exists is a defect.
 
 Before you write any Open line, search once for its answer. A question the code or a past decision already answers
-costs the owner's time and hides that nobody looked; an answer found is a Source. With Genter connected, search it
-first: `genter:genter_find` (genter-cli) reads the repository's files as they are now, and Genter Cloud's `search` and
-`read` reach tickets, chats, mail and docs. How to search well, with Genter and without:
+costs the owner's time and hides that nobody looked; an answer found is a Source. Search with Genter first: the
+plugin brings genter-cli, whose `genter_find` takes a question in plain words and returns the passages that answer,
+read now, with `path:lines` to cite; signed in to Genter Cloud, it also reaches tickets, chats, mail and docs. Use
+`grep` for an exact name you already know, and `grep` and `git log` when Genter is not there. How to search well:
 [references/finding-truth.md](references/finding-truth.md).
 
 **3. Write the brief.** `node <skill>/scripts/harden.mjs new "<short name>"` makes the file. Fill it:
