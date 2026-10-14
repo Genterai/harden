@@ -1,0 +1,12 @@
+{
+  "name": "harden",
+  "description": "Harden change requests before code: the method, the skill and the check.",
+  "owner": { "name": "Genterai", "url": "https://github.com/Genterai" },
+  "plugins": [
+    {
+      "name": "harden",
+      "source": "./",
+      "description": "The hardening-changes skill: a brief before code, red lines that tests tag, and harden check."
+    }
+  ]
+}

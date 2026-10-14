@@ -1,0 +1,36 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: "${{ matrix.node }}" }
+      - run: npm test
+        if: matrix.node != 18 # the tests use import.meta.dirname (Node 20.11+); the command itself runs on 18
+      - name: harden check (this repository, as its own first user)
+        run: |
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            node skills/hardening-changes/scripts/harden.mjs check --base origin/${{ github.base_ref }}
+          else
+            node skills/hardening-changes/scripts/harden.mjs check
+          fi
+      - name: the quickstart example
+        working-directory: examples/notes
+        run: npm test && npm run check
+      - name: harden proof
+        if: matrix.node == 22
+        run: |
+          node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=junit.xml "test/*.test.mjs"
+          node skills/hardening-changes/scripts/harden.mjs proof junit.xml --strict --out proof.md
+          cat proof.md >> "$GITHUB_STEP_SUMMARY"

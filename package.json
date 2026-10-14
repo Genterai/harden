@@ -1,0 +1,17 @@
+{
+  "name": "@genterai/harden",
+  "version": "0.1.0",
+  "description": "Harden change requests before code: briefs, red lines that tests tag, and the check that keeps them in step.",
+  "type": "module",
+  "bin": { "harden": "skills/hardening-changes/scripts/harden.mjs" },
+  "files": ["skills/hardening-changes", "LICENSE", "README.md"],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "check": "node skills/hardening-changes/scripts/harden.mjs check"
+  },
+  "keywords": ["requirements", "specs", "change-requests", "red-lines", "ai-agents", "agent-skills", "claude-code"],
+  "homepage": "https://github.com/Genterai/harden",
+  "repository": { "type": "git", "url": "git+https://github.com/Genterai/harden.git" },
+  "license": "Apache-2.0"
+}

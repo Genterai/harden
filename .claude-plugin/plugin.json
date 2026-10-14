@@ -1,0 +1,10 @@
+{
+  "name": "harden",
+  "description": "Hardens change requests into briefs before code, and keeps a product's red lines and their tests in step: the hardening-changes skill and the harden check.",
+  "version": "0.1.0",
+  "author": { "name": "Genterai", "url": "https://github.com/Genterai" },
+  "homepage": "https://github.com/Genterai/harden",
+  "repository": "https://github.com/Genterai/harden",
+  "license": "Apache-2.0",
+  "keywords": ["requirements", "specs", "change-requests", "red-lines", "agents", "skills"]
+}

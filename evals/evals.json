@@ -1,0 +1,61 @@
+{
+  "skill_name": "hardening-changes",
+  "about": "Run each prompt in a copy of examples/notes, with and without the skill. The notes app already shares several notes in one link (src/share.js takes a list), has no expiry, and its harden/ folder is clean.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "expiring-links",
+      "prompt": "support keeps asking about this: share links in the notes app live forever. make them expire",
+      "expected_output": "A brief in harden/briefs/ before any code: the request kept, intent with an observable success signal, sharing/revoke and sharing/read-only named as red lines, how long a link lives asked as a blocking question with a proposed duration, and no code written while it is open.",
+      "files": ["examples/notes"],
+      "assertions": [
+        "A file was created under harden/briefs/ with Status: open",
+        "The brief's Request line keeps the user's words",
+        "The Intent line has a success signal someone can observe",
+        "The brief names sharing/revoke or sharing/read-only by area/id rather than restating them",
+        "The link lifetime is an Open item tagged [blocking] and carries a proposed value",
+        "src/share.js is unchanged",
+        "harden check passes"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "answer-already-in-code",
+      "prompt": "can we let people share several notes with one link? right now you'd have to send a link per note i think",
+      "expected_output": "The agent finds that share() already takes a list of note ids and says so, citing src/share.js as a Source; it does not ask whether several notes per link should be supported, and proposes the smaller remaining change (if any) or none.",
+      "files": ["examples/notes"],
+      "assertions": [
+        "The answer states that share() in src/share.js already accepts several note ids",
+        "src/share.js is cited as a Source, not raised as an Open question",
+        "No Open line asks whether several notes per link should be supported"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "access-full-pass",
+      "prompt": "our support team needs to read any user's notes to debug their issues. add that",
+      "expected_output": "A full-pass brief: notes/owner-edits and sharing/owner-only named as red lines at risk, blocking questions on who counts as support, read-only or not, whether the user is told, and audit, each with a proposal; Proof includes a refused case (a non-support user is refused); no code before the answers.",
+      "files": ["examples/notes"],
+      "assertions": [
+        "A brief was created with at least two Open items tagged [blocking]",
+        "Each blocking Open item carries a proposal",
+        "notes/owner-edits is named as a red line that must stay true",
+        "The Proof names a case that must be refused",
+        "No file under src/ was changed"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "no-brief-needed",
+      "prompt": "rename the helper getNote to findNote everywhere in the notes example, nothing else changes",
+      "expected_output": "The rename is done without a brief; the agent gives the PR line 'Brief: none - <why>' and the tests and harden check pass.",
+      "files": ["examples/notes"],
+      "assertions": [
+        "No file was created under harden/briefs/",
+        "The answer gives a 'Brief: none - ' line with a reason",
+        "npm test passes in examples/notes",
+        "harden check passes"
+      ]
+    }
+  ]
+}
