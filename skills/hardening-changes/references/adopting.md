@@ -11,7 +11,7 @@
 
 Do not write the whole product down first. Red lines grow with the changes:
 
-1. `npx -y github:Genterai/harden init --area <the area of your next change>`.
+1. `npm install -g github:Genterai/harden`, then `harden init --area <the area of your next change>`.
 2. For the next request, write the red lines of the areas it touches, and only those: what users rely on there,
    the access boundaries, the meaning of its data, its contracts. Ten good lines beat a hundred guessed ones.
 3. Find the tests that already check those lines and tag them. Mark a line with no test `(manual: how it is

@@ -51,7 +51,7 @@ test("[rl:sharing/revoke] a revoked link answers 404 at once", () => { /* … */
 ```
 
 ```
-$ npx -y github:Genterai/harden check --base origin/main
+$ harden check --base origin/main
 error  harden/briefs/2026-10-14-share-links-expire.md:9  Status is building but a blocking question is open: "how long? → 7 days, the shortest support asked for [blocking]"; answer it and move it to "Decided:"
 error  test/share.test.js:20  [sharing/revoked] tags no red line; did you mean sharing/revoke?
 error  harden/redlines/sharing.md:10  sharing/revoke has no test: tag one [rl:sharing/revoke], or mark it (planned) or (manual: why)
@@ -83,8 +83,9 @@ skills settings.
 
 ```bash
 cd your-repo
-npx -y github:Genterai/harden init --area sharing
-npx -y github:Genterai/harden check
+npm install -g github:Genterai/harden
+harden init --area sharing
+harden check
 ```
 
 `init` makes `harden/` with one area, the brief template, `retired.txt` and `config.json`. Edit
@@ -99,7 +100,7 @@ people rely on there. Don't write the whole product down; red lines grow with ea
 
 The skill triggers on its own. The agent reads the red lines, searches what exists, writes the brief, asks its
 blocking questions with a proposal each, and only then builds. Prefer to start one yourself:
-`npx -y github:Genterai/harden new "Share links expire"`.
+`harden new "Share links expire"`.
 
 **4. Put the check in CI.**
 
@@ -115,7 +116,8 @@ jobs:
         with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - run: npx -y github:Genterai/harden#v0.1.0 check --base origin/${{ github.base_ref }}
+      - run: npm install -g github:Genterai/harden#2f9600792d93206b663c6c91bb6189de42412315
+      - run: harden check --base origin/${{ github.base_ref }}
 ```
 
 Every PR that changes code an area names now carries one line, which the check reads from the PR:
@@ -192,8 +194,9 @@ code already answers never reach the owner. What we saw, and how to measure it o
 | `harden proof <junit.xml>... [--strict] [--out <file>]` | layer 3 |
 | `harden list [--json]` | every red line with its sources and tests, for an audit agent |
 
-Run with `npx -y github:Genterai/harden <command>`, or `node skills/hardening-changes/scripts/harden.mjs` from a
-clone. Node 18 or later, no dependencies. The file format: [format.md](skills/hardening-changes/references/format.md).
+Install with `npm install -g github:Genterai/harden` (pin a commit with `#<sha>`), or run
+`node skills/hardening-changes/scripts/harden.mjs` from a clone. `npx github:…` is not recommended: npm 10.9 fails
+on it with "GitFetcher requires an Arborist constructor". Node 18 or later, no dependencies. The file format: [format.md](skills/hardening-changes/references/format.md).
 
 ## In this repository
 

@@ -578,7 +578,7 @@ A pull request that changes code an area names under Sources carries one line:
     Brief: harden/briefs/<file>.md
     Brief: none - <why no behaviour changes>
 
-Check it all: \`npx -y github:Genterai/harden check\`.
+Check it all: \`harden check\` (\`npm install -g github:Genterai/harden\`).
 `,
     made,
   );

@@ -59,7 +59,7 @@ then a line covered only by them is not proved at all. `harden proof` reads the 
 ```bash
 node --test --test-reporter=spec --test-reporter-destination=stdout \
   --test-reporter=junit --test-reporter-destination=junit.xml
-npx -y github:Genterai/harden proof junit.xml --out proof.md
+harden proof junit.xml --out proof.md
 ```
 
 | State | Means |
@@ -109,14 +109,15 @@ jobs:
         with: { fetch-depth: 0 }   # --base needs the history
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
+      - run: npm install -g github:Genterai/harden#2f9600792d93206b663c6c91bb6189de42412315
       - if: github.event_name == 'pull_request'
-        run: npx -y github:Genterai/harden#v0.1.0 check --base origin/${{ github.base_ref }}
+        run: harden check --base origin/${{ github.base_ref }}
       - if: github.event_name == 'push'
-        run: npx -y github:Genterai/harden#v0.1.0 check
+        run: harden check
 ```
 
-The PR body is read from the event; nothing else to pass. Pin a tag or a commit so a new release never turns your CI
-red on its own. For layer 3, add `harden proof` after the test job that has every secret.
+The PR body is read from the event; nothing else to pass. Pin a commit (or a release tag) so a new release never turns
+your CI red on its own. For layer 3, add `harden proof` after the test job that has every secret.
 
 ## Test runners and junit
 

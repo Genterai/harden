@@ -26,7 +26,7 @@ it changes go in one pull request.
 
 `<skill>` below is this skill's own folder (its base directory); run every command from the repository's root.
 
-No `harden/` yet: run `node <skill>/scripts/harden.mjs init` (or `npx -y github:Genterai/harden init`) in the
+No `harden/` yet: run `node <skill>/scripts/harden.mjs init` (or `harden init` after `npm install -g github:Genterai/harden`) in the
 repository, then write the red lines of the areas the request touches, and only those. The full format is in
 [references/format.md](references/format.md).
 
