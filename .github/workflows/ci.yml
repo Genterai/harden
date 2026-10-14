@@ -12,9 +12,9 @@ jobs:
       matrix:
         node: [18, 20, 22]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with: { node-version: "${{ matrix.node }}" }
       - run: npm test
         if: matrix.node != 18 # the tests use import.meta.dirname (Node 20.11+); the command itself runs on 18

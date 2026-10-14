@@ -112,9 +112,9 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with: { node-version: 22 }
       - run: npm install -g github:Genterai/harden#2f9600792d93206b663c6c91bb6189de42412315
       - run: harden check --base origin/${{ github.base_ref }}
