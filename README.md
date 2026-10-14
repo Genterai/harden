@@ -22,7 +22,7 @@
 
 **A Claude Code plugin.** Install it, then ask for a change the way you always do. Before writing code, the agent
 writes a **brief**: what the change is for, what already exists (found with [genter-cli](https://github.com/Genterai/genter),
-which comes with the plugin), what must not break, and what it has to ask you. Then it builds, and one check in CI
+which it runs with `npx`), what must not break, and what it has to ask you. Then it builds, and one check in CI
 keeps the product's **red lines** and the tests that prove them in step, change after change.
 
 "Make share links expire." A coding agent will happily write that in ten minutes. It guesses the duration, breaks
@@ -88,7 +88,8 @@ there.
 
 ## Quickstart
 
-**1. Install the plugin.** It brings the skill, the `harden` check, and genter-cli's MCP server, `genter`.
+**1. Install the plugin.** It brings the skill and the `harden` check. The skill runs genter-cli with `npx`: nothing
+else to install.
 
 ```bash
 claude plugin marketplace add Genterai/harden
@@ -98,7 +99,7 @@ claude plugin install harden@harden
 (Or, inside a session, `/plugin marketplace add Genterai/harden` and `/plugin install harden@harden`.)
 
 Any other agent that reads [Agent Skills](https://agentskills.io): copy [`skills/hardening-changes/`](skills/hardening-changes)
-into its skills folder and add genter-cli as an MCP server (`npx -y genter-cli mcp`). On claude.ai, upload that folder
+into its skills folder; it needs a shell with `npx` for genter-cli. On claude.ai, upload that folder
 as a ZIP in your skills settings.
 
 **2. Turn on ranking by meaning** (recommended): the agent finds what exists from its own words, not only the code's.
@@ -126,7 +127,7 @@ lines that people rely on there. Don't write the whole product down: red lines g
 > make share links expire
 ```
 
-The skill starts on its own. The agent reads the red lines, searches what exists with `genter_find`, writes the brief,
+The skill starts on its own. The agent reads the red lines, searches what exists with `npx -y genter-cli ask`, writes the brief (its `Searched:` line says what it asked),
 asks its blocking questions with a proposal for each, and only then builds. To start a brief yourself:
 `harden new "Share links expire"`.
 
@@ -137,7 +138,7 @@ asks its blocking questions with a proposal for each, and only then builds. To s
 | | Without harden | With harden |
 | -- | -- | -- |
 | A request arrives | the agent starts coding | the agent reads the red lines of the areas it touches |
-| What exists | it greps the names it guesses | `genter_find` returns the code, tests and earlier briefs that answer, with `path:lines` |
+| What exists | it greps the names it guesses | `genter-cli ask` returns the code, tests and earlier briefs that answer, with `path:lines` |
 | A gap | filled silently with a guess | a blocking question with a proposal, and the work waits; you answer "yes" |
 | The code | matches the request | matches the brief; when reality disagrees, the brief changes first |
 | The tests | whatever was written | the ones the brief's Proof names, tagged `[rl:area/id]` |
@@ -173,8 +174,9 @@ fails the day a red line loses its test.
 
 ## Find what exists, with Genter
 
-Most of the cost of a brief is finding what already exists and what was already decided. The plugin brings
-[genter-cli](https://github.com/Genterai/genter) for that. It resolves a question to the place its answer is written (a
+Most of the cost of a brief is finding what already exists and what was already decided. The skill runs
+[genter-cli](https://github.com/Genterai/genter) for that, always, with `npx -y genter-cli@0.3 ask "<question>"`: no
+keys, no install, no server to set up. It resolves a question to the place its answer is written (a
 file and its lines) and reads that place again at every question, so a brief never cites a stale copy. The principle is
 the same as a brief's Sources: reference the truth, never copy it.
 
@@ -187,18 +189,19 @@ the same as a brief's Sources: reference the truth, never copy it.
 
 With `GENTER_SEMANTIC=1` and an embeddings key, Genter ranks by meaning as well as by words. On genter-cli's
 [DriftBench](https://github.com/Genterai/genter#benchmarks), that raises current answers from 77% to 88%. Without a key
-it ranks by words and nothing leaves your computer. The method works without Genter too, with `grep` and `git log`. It
-is slower, not different. More: [docs/with-genter.md](docs/with-genter.md).
+it ranks by words and nothing leaves your computer. A brief from 2026-10-15 on says in `Searched:` what genter-cli was
+asked, and `harden check` fails without it; only where `npx` cannot run (no network) does it say `none - why` and fall
+back to `grep` and `git log`. More: [docs/with-genter.md](docs/with-genter.md).
 
 ## Genter Cloud: the decisions behind the code
 
 Why the code does what it does is usually written in a ticket, a Slack thread or an email. [Genter Cloud](https://genter.ai)
 connects GitHub, Linear, Slack, Gmail, Notion and 500 more apps, keeps them current from their own events, and the
-same `genter_find` then searches your repository first and your apps second. It is optional.
+same `genter-cli ask` then searches your repository first and your apps second. It is optional.
 
 1. Sign up at [genter.ai](https://genter.ai) and connect the apps where your team decides things.
 2. Make a token in Settings → API tokens.
-3. Sign in once. The plugin's `genter` server picks it up:
+3. Sign in once. Every `npx genter-cli ask` picks it up:
 
    ```bash
    npx genter-cli login gnt_...    # or export GENTER_TOKEN=gnt_...
@@ -207,7 +210,8 @@ same `genter_find` then searches your repository first and your apps second. It 
 4. Ask for a change as before. A brief's Sources now cite the ticket and the thread a rule came from. A question that
    was already answered in chat becomes `Decided:` with who decided it and when, instead of reaching you again.
 
-Genter Cloud also gives each agent its own MCP URL with `search` and `read`, for clients that don't run genter-cli.
+Genter Cloud also gives each agent its own MCP URL with `search` and `read`, for a person's own MCP client; the skill
+itself always goes through genter-cli.
 
 ## Try it on the example
 
@@ -275,7 +279,7 @@ on it with "GitFetcher requires an Arborist constructor". Node 18 or later, no d
 | [`examples/workflow/`](examples/workflow) | the files that put harden into a repository's workflow |
 | [`evals/evals.json`](evals/evals.json) | prompts and assertions to test the skill, with and without it |
 | [`harden/`](harden) | this repository's own red lines: the check is its own first user |
-| [`.claude-plugin/`](.claude-plugin) | the Claude Code plugin (the skill and genter-cli's MCP server) and marketplace |
+| [`.claude-plugin/`](.claude-plugin) | the Claude Code plugin (the skill) and marketplace |
 
 ## Questions
 

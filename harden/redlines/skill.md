@@ -14,7 +14,7 @@ Sources: `skills/hardening-changes/SKILL.md`, `skills/hardening-changes/referenc
 * **[search-before-open]** (manual: evals) The skill has the agent search once for an answer before writing an Open
   line.
 * **[stops]** (manual: evals) With a blocking question open, the agent asks and does not build.
-* **[genter]** (manual: `claude plugin validate .`, then `/mcp` lists genter) The plugin brings genter-cli's MCP server,
-  pinned to a minor version. It ranks by meaning only when the person sets `GENTER_SEMANTIC=1`, and finds in Genter
-  Cloud only when they signed in. The skill searches with Genter first, and with `grep` and `git log` when Genter is
-  not there.
+* **[genter]** (manual: evals; `claude plugin validate .`) The skill always searches with genter-cli from the shell,
+  `npx -y genter-cli@<minor> ask "<question>"`, pinned to a minor version; the plugin starts no MCP server. It ranks by
+  meaning only when the person sets `GENTER_SEMANTIC=1`, and finds in Genter Cloud only when they signed in. `grep` and
+  `git log` are for exact names and history, or when `npx` cannot run, and then the brief says why (check/searched).

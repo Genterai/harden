@@ -15,7 +15,7 @@ Most of the cost of hardening a request is step 2: finding what already exists a
 badly it costs twice. An agent that does not look asks the owner questions the code already answers. An agent that
 looks in a stale copy cites a rule that no longer holds, and the brief is wrong before the code starts.
 
-Two tools from the same team make step 2 fast and current. The first comes with the plugin:
+Two tools from the same team make step 2 fast and current. The skill always runs the first, with `npx`:
 
 * **[genter-cli](https://github.com/Genterai/genter)** (Apache-2.0, no dependencies) resolves a question to the place
   its answer is written in your folders, files and websites, and reads that place again every time.
@@ -27,7 +27,7 @@ Two tools from the same team make step 2 fast and current. The first comes with 
 | Step | Without | With genter-cli | With Genter Cloud |
 | -- | -- | -- | -- |
 | 1. Red lines | `grep` in `harden/redlines` | the same, plus "which red line is about revoking links?" by meaning | the same |
-| 2. What exists | `grep`, guessing names | `genter_find` over this and sibling repositories, read now, with `path:lines` | also tickets, chats, mail, docs: the decision behind the code |
+| 2. What exists | `grep`, guessing names | `npx genter-cli ask` over this and sibling repositories, read now, with `path:lines` | also tickets, chats, mail, docs: the decision behind the code |
 | 2. Each Open line | often skipped | one search per question before it is written | the same, across the team's apps |
 | 3. Sources | paths you happened to find | `path:lines` that were just read | links to the ticket and the thread |
 | 6. Proof | the tests you know | the tests that tag a line (`harden list`) and the code they cover | the same |
@@ -56,9 +56,10 @@ ranking. A brief written from such an index would cite the old rule in about two
 
 ## Set it up
 
-**genter-cli comes with the plugin.** `claude plugin install harden@harden` also starts genter-cli's MCP server
-(`genter`, from npm, pinned to its minor version), so `genter_find` is there from the first request. It searches the
-folder Claude Code runs in, read at every question.
+**The skill runs genter-cli, always.** Step 2 runs `npx -y genter-cli@0.3 ask "<question>"` in the folder Claude Code
+works in: no keys, no install, no MCP server to set up, and the minor version is pinned so a new one reaches people
+only with a new plugin version. The brief's `Searched:` line says what was asked, and `harden check` fails a brief from
+2026-10-15 on without it.
 
 **Turn on ranking by meaning** (recommended). Put this in your shell profile and restart Claude Code:
 
@@ -78,17 +79,11 @@ Gmail, Notion or any of 500 more. Make a token in Settings → API tokens, then 
 npx genter-cli login gnt_...    # or export GENTER_TOKEN=gnt_...
 ```
 
-`genter_find` then finds in your folders first, then in your apps: the ticket a request came from, the thread where
-the rule was decided. You can also connect Genter Cloud's own MCP URL (`search`, `read`) to your client directly.
+`genter-cli ask` then finds in your folders first, then in your apps: the ticket a request came from, the thread where
+the rule was decided. Genter Cloud's own MCP URL (`search`, `read`) is for your own MCP client; the skill always goes through genter-cli.
 
-**Without the plugin**, for any MCP client (Claude Code shown):
-
-```bash
-claude mcp add genter -e GENTER_SEMANTIC=1 -- npx -y genter-cli mcp
-```
-
-The skill picks Genter up on its own: step 2 searches with `genter_find` (or Genter Cloud's `search`) first, and
-with `grep` and `git log` when neither is there ([finding-truth.md](../skills/hardening-changes/references/finding-truth.md)).
+**Without the plugin**, any agent with a shell does the same: `npx -y genter-cli@0.3 ask "<question>"`
+([finding-truth.md](../skills/hardening-changes/references/finding-truth.md)).
 
 ## Measure it on your team
 
@@ -109,5 +104,5 @@ the code.
 * **Archives.** Old specs and legacy branches show up next to the code. They are history; `harden/redlines/` says what
   holds.
 * **Evidence, not decisions.** Genter finds what is written. Whether it is still meant is a question for the owner.
-* **Not required.** genter-cli comes with the plugin, but the method works the same with `grep` and `git log`: an agent
-  without the plugin, or a CI job, is slower, not different.
+* **No network.** Where `npx` cannot run (a sandbox, a CI job), the brief says `Searched: none - <why>` and the agent
+  falls back to `grep` and `git log`: slower, not different. "Quicker with grep" is not a reason.

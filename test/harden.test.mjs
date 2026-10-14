@@ -151,6 +151,16 @@ test("[rl:check/brief-fields] a brief needs its fields, a success signal and tag
   assert.ok(e.some((m) => m.includes('"Proof:"')));
 });
 
+test("[rl:check/searched] a brief from 2026-10-15 on says how it was searched: genter-cli, or none with a reason", () => {
+  const at = (file, over) => errors(repo({ ...BASE, [`harden/briefs/${file}`]: BRIEF(over) }));
+  assert.ok(at("2026-10-15-expiry.md", {}).some((m) => m.includes('no "Searched:" line')));
+  assert.ok(at("2026-10-15-expiry.md", { Searched: "grep" }).some((m) => m.includes("names neither genter-cli")));
+  assert.ok(at("2026-10-15-expiry.md", { Searched: "none" }).some((m) => m.includes("names neither genter-cli")));
+  assert.deepEqual(at("2026-10-15-expiry.md", { Searched: 'genter-cli: "how long do links live?"' }), []);
+  assert.deepEqual(at("2026-10-15-expiry.md", { Searched: "none - no network in CI" }), []);
+  assert.deepEqual(at("2026-10-14-expiry.md", {}), [], "older briefs are records");
+});
+
 test("[rl:check/blocking-stops] building or shipped with a blocking question open is an error", () => {
   const root = repo({ ...BASE, "harden/briefs/2026-10-01-expiry.md": BRIEF({ Status: "building" }) });
   assert.ok(errors(root).some((m) => m.includes("blocking question is open")));

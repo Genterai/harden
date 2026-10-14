@@ -6,7 +6,7 @@
 - How to search
 - With genter-cli: the repository, read as it is now
 - With Genter Cloud: tickets, chats, mail and docs too
-- Without Genter
+- When npx cannot run
 - Rules for what you find
 - Pitfalls
 
@@ -32,29 +32,34 @@ Before the brief takes a position, know:
 
 ## With genter-cli: the repository, read as it is now
 
-[genter-cli](https://github.com/Genterai/genter) comes with the harden plugin as the MCP server `genter`. It resolves
-a question to the place its answer is written (a file and its lines, a page) and reads that place again at every
-question, so it never hands back a stale copy. That is the same rule as a brief's Sources: reference the truth, never
-copy it. Without the plugin, any MCP client:
+[genter-cli](https://github.com/Genterai/genter) is a command, run with `npx` from the folder you work in: no keys, no
+install, nothing to set up. It resolves a question to the place its answer is written (a file and its lines, a page)
+and reads that place again at every question, so it never hands back a stale copy. That is the same rule as a brief's
+Sources: reference the truth, never copy it. Use it for every request, before any Open line:
 
 ```bash
-claude mcp add genter -e GENTER_SEMANTIC=1 -- npx -y genter-cli mcp
+npx -y genter-cli@0.3 ask "where do we check who may see revenue?"   # the passages that answer, with path:lines
+npx -y genter-cli@0.3 add ../sibling-repo https://example.com/docs  # search these too from now on
+npx -y genter-cli@0.3 sources                                       # what is searched
 ```
 
-| Tool | Use it for |
+| Command | Use it for |
 | -- | -- |
-| `genter_find` | the passages that answer a question, read now, with `path:lines` |
-| `genter_add` | add a folder, a file or a website to search (a sibling repository, a protocol's docs) |
-| `genter_sources` | what is searched |
-| `genter_remember` | a note it finds later, with its date: a working note, never a decision (decisions go in the brief) |
+| `ask "<question>"` | the passages that answer, read now, with `path:lines` (`--limit N`, `--json`) |
+| `add <folder\|file\|url>` | add a sibling repository or a protocol's docs to search |
+| `sources` | what is searched |
+| `remember "<text>"` | a note `ask` finds later, with its date: a working note, never a decision (decisions go in the brief) |
 
-**Ranking by meaning.** With `GENTER_SEMANTIC=1` and an embeddings key in the environment (`OPENAI_API_KEY`,
-`OPENROUTER_API_KEY`, `AI_GATEWAY_API_KEY`, or Ollama on the computer), `genter_find` also ranks by meaning: "is a
+Then write in the brief what you asked: `Searched: genter-cli: "who may see revenue?", "what decided the 7-day
+expiry?"`. A brief from 2026-10-15 on without that line fails `harden check`.
+
+**Ranking by meaning.** With `--semantic` (or `GENTER_SEMANTIC=1`) and an embeddings key in the environment (`OPENAI_API_KEY`,
+`OPENROUTER_API_KEY`, `AI_GATEWAY_API_KEY`, or Ollama on the computer), `ask` also ranks by meaning: "is a
 skipped test counted as proof?" finds the section on proof, though it shares few words with it. Without it, Genter
 ranks by words: ask in the code's and the docs' own words. With a key, the passages it ranks go to that provider;
 with Ollama nothing leaves the computer.
 
-**When to use which.** `genter_find` for a question ("where do we check who may see revenue?", "what decided the
+**When to use which.** `genter-cli ask` for a question ("where do we check who may see revenue?", "what decided the
 7-day expiry?"); `grep` for an exact name you already have (`canViewRevenue`, `[rl:sharing/revoke]`); `git log -S`
 for when something appeared or went. A result marked "changed since the last look" was read again just now: use its
 new text.
@@ -64,10 +69,10 @@ new text.
 Decisions rarely live only in code. [Genter Cloud](https://genter.ai) connects GitHub, Linear, Slack, Gmail, Notion
 and many more, and keeps them current from their own events. Two ways in:
 
-* **Through genter-cli** (the plugin's server): make a token in Genter Cloud (Settings → API tokens), run
-  `npx genter-cli login gnt_...` once (or set `GENTER_TOKEN`), and `genter_find` finds in your folders first, then in
-  your apps.
-* **Its own MCP URL**, with two tools, for any MCP client:
+* **Through genter-cli**: make a token in Genter Cloud (Settings → API tokens), run `npx -y genter-cli@0.3 login gnt_...`
+  once (or set `GENTER_TOKEN`), and the same `ask` finds in your folders first, then in your apps (`--cloud` for only
+  your apps). This is the way the skill uses.
+* **Its own MCP URL**, with two tools, for a person's own MCP client:
 
 | Tool | Use it for |
 | -- | -- |
@@ -77,14 +82,15 @@ and many more, and keeps them current from their own events. Two ways in:
 Use it to find the decision behind a behaviour ("why do invites never reach shared apps?"), the ticket a bug report
 came from, the person who asked, and what was already tried.
 
-## Without Genter
+## When npx cannot run
 
-Another agent, a CI job, or Genter turned off: the method works the same, only slower.
+A CI job or a sandbox without network: the method works the same, only slower, and the brief says so.
 
-* Code: `grep -rn`, `rg`, your editor's search; `git log -S "<string>"` for when something appeared or went;
-  `git blame` and the PR it came from for why.
+* Code: `grep -rn`, `rg`; `git log -S "<string>"` for when something appeared or went; `git blame` and the PR it came
+  from for why.
 * Red lines and briefs: `grep -rl "<path>" harden/redlines`, `grep -rl "<area>/" harden/briefs`.
-* Say in the brief's Sources what you could not search (the tracker, chat), so a reviewer knows where to look.
+* Write `Searched: none - <why genter-cli could not run>`, and say in Sources what you could not search (the tracker,
+  chat), so a reviewer knows where to look. "It was quicker with grep" is not a reason.
 
 ## Rules for what you find
 
