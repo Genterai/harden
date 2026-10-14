@@ -4,7 +4,7 @@
   "type": "module",
   "description": "A tiny notes app with share links: the harden quickstart runs here.",
   "scripts": {
-    "test": "node --test \"test/*.test.js\"",
+    "test": "node --test test/share.test.js",
     "check": "node ../../skills/hardening-changes/scripts/harden.mjs check"
   }
 }

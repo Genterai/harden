@@ -17,7 +17,6 @@ jobs:
       - uses: actions/setup-node@v5
         with: { node-version: "${{ matrix.node }}" }
       - run: npm test
-        if: matrix.node != 18 # the tests use import.meta.dirname (Node 20.11+); the command itself runs on 18
       - name: harden check (this repository, as its own first user)
         run: |
           if [ "${{ github.event_name }}" = pull_request ]; then
@@ -31,6 +30,6 @@ jobs:
       - name: harden proof
         if: matrix.node == 22
         run: |
-          node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=junit.xml "test/*.test.mjs"
+          node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=junit.xml test/harden.test.mjs
           node skills/hardening-changes/scripts/harden.mjs proof junit.xml --strict --out proof.md
           cat proof.md >> "$GITHUB_STEP_SUMMARY"

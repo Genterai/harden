@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   check,
   globToRegExp,
@@ -239,7 +240,7 @@ test("[rl:check/parsing] globs, open items, paths and markers", () => {
 });
 
 test("[rl:check/exit-code] the command exits 1 on errors and 0 when clean", () => {
-  const cli = join(import.meta.dirname, "..", "skills/hardening-changes/scripts/harden.mjs");
+  const cli = join(dirname(fileURLToPath(import.meta.url)), "..", "skills/hardening-changes/scripts/harden.mjs");
   const root = repo(BASE, { commit: true });
   assert.equal(execFileSync("node", [cli, "check"], { cwd: root, encoding: "utf8" }).includes("0 errors"), true);
   writeFileSync(join(root, "test/x.test.js"), `test("${rl("sharing/nope")} x", () => {});\n`);

@@ -7,7 +7,7 @@
   "files": ["skills/hardening-changes", "LICENSE", "README.md"],
   "engines": { "node": ">=18" },
   "scripts": {
-    "test": "node --test \"test/*.test.mjs\"",
+    "test": "node --test test/harden.test.mjs",
     "check": "node skills/hardening-changes/scripts/harden.mjs check"
   },
   "keywords": ["requirements", "specs", "change-requests", "red-lines", "ai-agents", "agent-skills", "claude-code"],
