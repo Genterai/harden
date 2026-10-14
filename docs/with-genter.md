@@ -15,7 +15,7 @@ Most of the cost of hardening a request is step 2: finding what already exists a
 badly it costs twice. An agent that does not look asks the owner questions the code already answers. An agent that
 looks in a stale copy cites a rule that no longer holds, and the brief is wrong before the code starts.
 
-Two tools from the same team make step 2 fast and current:
+Two tools from the same team make step 2 fast and current. The first comes with the plugin:
 
 * **[genter-cli](https://github.com/Genterai/genter)** (Apache-2.0, no dependencies) resolves a question to the place
   its answer is written in your folders, files and websites, and reads that place again every time.
@@ -56,23 +56,39 @@ ranking. A brief written from such an index would cite the old rule in about two
 
 ## Set it up
 
-Your repository, for any MCP client (Claude Code shown):
+**genter-cli comes with the plugin.** `claude plugin install harden@harden` also starts genter-cli's MCP server
+(`genter`, from npm, pinned to its minor version), so `genter_find` is there from the first request. It searches the
+folder Claude Code runs in, read at every question.
+
+**Turn on ranking by meaning** (recommended). Put this in your shell profile and restart Claude Code:
 
 ```bash
-claude mcp add genter -- npx -y genter-cli mcp
+export GENTER_SEMANTIC=1
+export OPENAI_API_KEY=sk-...    # or OPENROUTER_API_KEY, AI_GATEWAY_API_KEY; or run Ollama: ollama pull nomic-embed-text
 ```
 
-Your apps too: make a token in Genter Cloud (Settings → API tokens), then
+The agent can then ask in its own words ("is a skipped test counted as proof?") and still find the section that
+answers. On genter-cli's DriftBench, current answers go from 77% to 88% with meaning. It is opt-in because with a key
+the passages Genter ranks go to that provider; with Ollama nothing leaves the computer.
+
+**Add your team's apps** (optional). Sign up at [genter.ai](https://genter.ai) and connect GitHub, Linear, Slack,
+Gmail, Notion or any of 500 more. Make a token in Settings → API tokens, then once:
 
 ```bash
-npx genter-cli login gnt_...
+npx genter-cli login gnt_...    # or export GENTER_TOKEN=gnt_...
 ```
 
-`genter mcp` then finds in your folders first, then in your apps. Or connect Genter Cloud's MCP URL to your client
-directly.
+`genter_find` then finds in your folders first, then in your apps: the ticket a request came from, the thread where
+the rule was decided. You can also connect Genter Cloud's own MCP URL (`search`, `read`) to your client directly.
 
-The skill picks Genter up on its own: with `genter_find` or Genter Cloud's `search` available, step 2 searches there
-first ([finding-truth.md](../skills/hardening-changes/references/finding-truth.md)).
+**Without the plugin**, for any MCP client (Claude Code shown):
+
+```bash
+claude mcp add genter -e GENTER_SEMANTIC=1 -- npx -y genter-cli mcp
+```
+
+The skill picks Genter up on its own: step 2 searches with `genter_find` (or Genter Cloud's `search`) first, and
+with `grep` and `git log` when neither is there ([finding-truth.md](../skills/hardening-changes/references/finding-truth.md)).
 
 ## Measure it on your team
 
@@ -93,4 +109,5 @@ the code.
 * **Archives.** Old specs and legacy branches show up next to the code. They are history; `harden/redlines/` says what
   holds.
 * **Evidence, not decisions.** Genter finds what is written. Whether it is still meant is a question for the owner.
-* **A dependency.** Without Genter the method works the same with `grep` and `git log`; it is slower, not different.
+* **Not required.** genter-cli comes with the plugin, but the method works the same with `grep` and `git log`: an agent
+  without the plugin, or a CI job, is slower, not different.

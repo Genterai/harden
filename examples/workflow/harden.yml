@@ -1,0 +1,16 @@
+# .github/workflows/harden.yml: red lines, briefs and test tags stay in step on every pull request.
+name: harden
+on: [pull_request]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v5
+        with: { node-version: 22 }
+      - run: npm install -g github:Genterai/harden#2f9600792d93206b663c6c91bb6189de42412315
+      # reads the PR's Brief line from the pull request event
+      - run: harden check --base origin/${{ github.base_ref }}

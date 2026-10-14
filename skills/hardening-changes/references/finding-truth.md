@@ -32,42 +32,54 @@ Before the brief takes a position, know:
 
 ## With genter-cli: the repository, read as it is now
 
-[genter-cli](https://github.com/Genterai/genter) resolves a question to the place its answer is written (a file and
-its lines, a page) and reads that place again at every question, so it never hands back a stale copy. That is the
-same rule as a brief's Sources: reference the truth, never copy it.
+[genter-cli](https://github.com/Genterai/genter) comes with the harden plugin as the MCP server `genter`. It resolves
+a question to the place its answer is written (a file and its lines, a page) and reads that place again at every
+question, so it never hands back a stale copy. That is the same rule as a brief's Sources: reference the truth, never
+copy it. Without the plugin, any MCP client:
 
 ```bash
-claude mcp add genter -- npx -y genter-cli mcp     # Claude Code; any MCP client works the same way
-npx genter-cli ask "where do we check who may see revenue?"
+claude mcp add genter -e GENTER_SEMANTIC=1 -- npx -y genter-cli mcp
 ```
-
-Its tools, as an MCP server named `genter`:
 
 | Tool | Use it for |
 | -- | -- |
-| `genter:genter_find` | the passages that answer a question, read now, with `path:lines` |
-| `genter:genter_add` | add a folder, a file or a website to search (a sibling repository, a protocol's docs) |
-| `genter:genter_sources` | what is searched |
-| `genter:genter_remember` | a note it finds later, with its date: a working note, never a decision (decisions go in the brief) |
+| `genter_find` | the passages that answer a question, read now, with `path:lines` |
+| `genter_add` | add a folder, a file or a website to search (a sibling repository, a protocol's docs) |
+| `genter_sources` | what is searched |
+| `genter_remember` | a note it finds later, with its date: a working note, never a decision (decisions go in the brief) |
 
-A result marked "changed since the last look" was read again just now: use its new text.
+**Ranking by meaning.** With `GENTER_SEMANTIC=1` and an embeddings key in the environment (`OPENAI_API_KEY`,
+`OPENROUTER_API_KEY`, `AI_GATEWAY_API_KEY`, or Ollama on the computer), `genter_find` also ranks by meaning: "is a
+skipped test counted as proof?" finds the section on proof, though it shares few words with it. Without it, Genter
+ranks by words: ask in the code's and the docs' own words. With a key, the passages it ranks go to that provider;
+with Ollama nothing leaves the computer.
+
+**When to use which.** `genter_find` for a question ("where do we check who may see revenue?", "what decided the
+7-day expiry?"); `grep` for an exact name you already have (`canViewRevenue`, `[rl:sharing/revoke]`); `git log -S`
+for when something appeared or went. A result marked "changed since the last look" was read again just now: use its
+new text.
 
 ## With Genter Cloud: tickets, chats, mail and docs too
 
 Decisions rarely live only in code. [Genter Cloud](https://genter.ai) connects GitHub, Linear, Slack, Gmail, Notion
-and many more, keeps them current from their own events, and serves them over one MCP URL with two tools:
+and many more, and keeps them current from their own events. Two ways in:
+
+* **Through genter-cli** (the plugin's server): make a token in Genter Cloud (Settings → API tokens), run
+  `npx genter-cli login gnt_...` once (or set `GENTER_TOKEN`), and `genter_find` finds in your folders first, then in
+  your apps.
+* **Its own MCP URL**, with two tools, for any MCP client:
 
 | Tool | Use it for |
 | -- | -- |
 | `search` | anything in the connected apps by meaning: an id, a title, the app, dates, and a warning when it may be outdated |
 | `read` | up to 10 results, read live from their apps |
 
-From genter-cli: `genter login <token>`, and `genter ask` / `genter mcp` search your folders first, then your apps.
-
 Use it to find the decision behind a behaviour ("why do invites never reach shared apps?"), the ticket a bug report
 came from, the person who asked, and what was already tried.
 
 ## Without Genter
+
+Another agent, a CI job, or Genter turned off: the method works the same, only slower.
 
 * Code: `grep -rn`, `rg`, your editor's search; `git log -S "<string>"` for when something appeared or went;
   `git blame` and the PR it came from for why.
