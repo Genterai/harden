@@ -22,6 +22,8 @@ Most weight: [no-reuse] and [coverage] keep test tags meaningful; [blocking-stop
 
 * **[brief-fields]** A brief has Status, Intent with "— success:", Sources, Red lines, Open and Proof; each open item
   carries `[blocking]` or `[non-blocking]`.
+* **[searched]** A brief dated 2026-10-15 or later has a `Searched:` line that names genter-cli (what it was asked) or
+  says "none - why"; without it, or with anything else, it is an error. Older briefs are left as they are.
 * **[blocking-stops]** A brief in `building` or `shipped` with a blocking question open is an error.
 * **[shipped-folds]** A `shipped` brief lists under "## Red lines after" the lines it made true, each in
   `redlines/` and no longer (planned), or says "none - why".

@@ -20,7 +20,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ASSETS = join(HERE, "..", "assets");
 
 export const STATUSES = ["open", "building", "shipped", "dropped"];
-const FIELDS = ["Status", "Request", "Intent", "Sources", "Red lines", "Open", "Decided", "Proof"];
+const FIELDS = ["Status", "Request", "Intent", "Searched", "Sources", "Red lines", "Open", "Decided", "Proof"];
 const ID = "[a-z0-9][a-z0-9-]*";
 const ENTRY = new RegExp(`^\\s*[*-]\\s+\\*\\*\\[(${ID})\\]\\*\\*\\s*(.*)$`);
 const FIELD = new RegExp(`^(${FIELDS.join("|")}):\\s*(.*)$`);
@@ -145,6 +145,11 @@ export function parseArea(text, file) {
   }
   return area;
 }
+
+// A brief from this day on says how its author searched (check/searched): genter-cli, or "none - why". Older briefs are
+// records and are left as they are.
+export const SEARCHED_SINCE = "2026-10-15";
+export const searchedOk = (value) => /\bgenter\b/i.test(value || "") || /^\s*none\s*[-—:]\s*\S/i.test(value || "");
 
 export function parseBrief(text, file) {
   const lines = text.split(/\r?\n/);
@@ -310,6 +315,11 @@ export function check(repo, { base = null, prBody = null } = {}) {
     if (b.status === "dropped") continue; // kept as a record; nothing in it has to hold
     for (const name of ["Intent", "Sources", "Red lines", "Open", "Proof"]) if (!f[name]) error(b.file, 1, `no "${name}:" line`);
     if (!f.Request) warn(b.file, 1, 'no "Request:" line: keep the words as they came, and from whom');
+    const day = b.file.match(/(?:^|\/)(\d{4}-\d{2}-\d{2})-[^/]*$/)?.[1];
+    if (day && day >= SEARCHED_SINCE) {
+      if (!f.Searched) error(b.file, 1, 'no "Searched:" line: what genter-cli was asked (npx -y genter-cli ask "<question>"), or "none - why"');
+      else if (!searchedOk(f.Searched.value)) error(b.file, f.Searched.line, '"Searched:" names neither genter-cli nor "none - why": search with npx -y genter-cli ask "<question>" first');
+    }
     if (f.Intent && !/success:/i.test(f.Intent.value)) error(b.file, f.Intent.line, 'Intent has no "— success: <observable signal>"');
     const items = openItems(f.Open?.value);
     for (const item of items) if (!isTagged(item)) error(b.file, f.Open.line, `open item without [blocking] or [non-blocking]: "${item.slice(0, 80)}"`);

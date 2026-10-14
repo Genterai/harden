@@ -94,6 +94,7 @@ Status: open
 Request: Anna (support), 2026-10-01: "customers ask why a link from last year still works"
 
 Intent: a shared link stops working after a while — success: an 8-day-old link answers 404
+Searched: genter-cli: "how long do share links live?", "who asked for expiry?"
 Sources: sharing/revoke, `src/share.js`, https://linear.app/acme/issue/SUP-412
 Red lines: sharing/read-only, sharing/revoke; new: sharing/expiry
 Open:
@@ -111,6 +112,7 @@ Proof: an 8-day-old link answers 404; a 6-day-old one works / sharing/ac-share p
 | `Status:` | yes | `open`, `building`, `shipped` or `dropped` |
 | `Request:` | warned | the words as they came, from whom, when |
 | `Intent:` | yes | one line, then `— success:` and an observable signal |
+| `Searched:` | yes, from 2026-10-15 | what genter-cli was asked, or `none - <why npx could not run>` |
 | `Sources:` | yes | code paths in backticks, `area/id`, links; referenced, never copied |
 | `Red lines:` | yes | `area/id` that must stay true; `new:` for lines this change adds |
 | `Open:` | yes | `none`, or items tagged `[blocking]` / `[non-blocking]` |

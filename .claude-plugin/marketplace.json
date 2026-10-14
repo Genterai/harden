@@ -6,7 +6,7 @@
     {
       "name": "harden",
       "source": "./",
-      "description": "The hardening-changes skill: a brief before code, red lines that tests tag, and harden check; genter-cli finds what exists by meaning."
+      "description": "The hardening-changes skill: a brief before code, red lines that tests tag, and harden check; genter-cli (npx) finds what exists by meaning."
     }
   ]
 }

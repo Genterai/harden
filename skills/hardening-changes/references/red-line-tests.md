@@ -84,7 +84,7 @@ and must not block a merge, because its answers vary. Run it weekly (a scheduled
 ```
 For each red line in `harden list --json`:
 1. Read the line and its area's Sources.
-2. Find the code that does it and the tests tagged with it (with Genter: genter_find; else grep), and read them.
+2. Find the code that does it and the tests tagged with it (`npx -y genter-cli@0.3 ask`; `grep` for an exact name), and read them.
 3. Judge: holds, contradicts or unclear, quoting the code.
 For each "contradicts", open an issue (or a brief with Status: open) quoting the line and the code. Change no code
 and no red line yourself.
