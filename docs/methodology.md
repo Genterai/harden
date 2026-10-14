@@ -131,4 +131,4 @@ Genter moved its product from a layered specs repository to harden in one sessio
 * The only open question carried over from the specs ("do we need a chat over several sources?") was answered by
   one search: the code already took up to 20 sources per chat.
 
-Its red lines live in [Genterai/frontend](https://github.com/Genterai/frontend) under `harden/`.
+Its red lines move into [Genterai/app](https://github.com/Genterai/app), under `harden/`.
