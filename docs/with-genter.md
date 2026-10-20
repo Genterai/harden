@@ -58,7 +58,7 @@ ranking. A brief written from such an index would cite the old rule in about two
 
 **The skill runs genter-cli, always.** Step 2 runs `npx -y genter-cli@0.3 ask "<question>"` in the folder Claude Code
 works in: no keys, no install, no MCP server to set up, and the minor version is pinned so a new one reaches people
-only with a new plugin version. The brief's `Searched:` line says what was asked, and `harden check` fails a brief from
+only with a new plugin version (`@0.3` today; it moves to `@0.4` once genter-cli 0.4 is on npm). The brief's `Searched:` line says what was asked, and `harden check` fails a brief from
 2026-10-15 on without it.
 
 **Turn on ranking by meaning** (recommended). Put this in your shell profile and restart Claude Code:
@@ -73,14 +73,22 @@ answers. On genter-cli's DriftBench, current answers go from 77% to 88% with mea
 the passages Genter ranks go to that provider; with Ollama nothing leaves the computer.
 
 **Add your team's apps** (optional). Sign up at [genter.ai](https://genter.ai) and connect GitHub, Linear, Slack,
-Gmail, Notion or any of 500 more. Make a token in Settings → API tokens, then once:
+Gmail, Notion or any of 500 more. Then add Genter Cloud to your AI tool as its own MCP server at
+`https://genter.ai/api/mcp`; the tool signs you in with OAuth the first time, and no token is kept on your disk. In
+Claude Code:
 
 ```bash
-npx genter-cli login gnt_...    # or export GENTER_TOKEN=gnt_...
+claude mcp add --transport http genter-cloud https://genter.ai/api/mcp
 ```
 
-`genter-cli ask` then finds in your folders first, then in your apps: the ticket a request came from, the thread where
-the rule was decided. Genter Cloud's own MCP URL (`search`, `read`) is for your own MCP client; the skill always goes through genter-cli.
+The agent then searches your folders with `genter-cli ask` and your apps with Genter Cloud's `search` and `read`: the
+ticket a request came from, the thread where the rule was decided. genter-cli 0.3's `login` and `GENTER_TOKEN` no
+longer reach Genter Cloud, and genter-cli 0.4 removes them. If you signed in before, run `npx -y genter-cli@0.3 logout`
+and remove `GENTER_TOKEN` from your environment: 0.3 still sends the token with every `ask`, and it no longer does
+anything.
+
+**From the Genter marketplace.** `/plugin marketplace add Genterai/genter` lists harden too (`/plugin install
+harden@genter`), next to Genter's own plugin (`genter@genter`).
 
 **Without the plugin**, any agent with a shell does the same: `npx -y genter-cli@0.3 ask "<question>"`
 ([finding-truth.md](../skills/hardening-changes/references/finding-truth.md)).

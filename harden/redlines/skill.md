@@ -16,5 +16,8 @@ Sources: `skills/hardening-changes/SKILL.md`, `skills/hardening-changes/referenc
 * **[stops]** (manual: evals) With a blocking question open, the agent asks and does not build.
 * **[genter]** (manual: evals; `claude plugin validate .`) The skill always searches with genter-cli from the shell,
   `npx -y genter-cli@<minor> ask "<question>"`, pinned to a minor version; the plugin starts no MCP server. It ranks by
-  meaning only when the person sets `GENTER_SEMANTIC=1`, and finds in Genter Cloud only when they signed in. `grep` and
-  `git log` are for exact names and history, or when `npx` cannot run, and then the brief says why (check/searched).
+  meaning only when the person sets `GENTER_SEMANTIC=1`. Genter Cloud is the person's own MCP server in their AI tool
+  (`https://genter.ai/api/mcp`, signed in with OAuth): the skill searches the apps with its `search` and `read` when it
+  is there, and never tells anyone to make a token or run `genter login`; a person who signed genter-cli 0.3 in before
+  is told to run `logout` and remove `GENTER_TOKEN`, which 0.3 still sends with every `ask`. `grep` and `git log` are
+  for exact names and history, or when `npx` cannot run, and then the brief says why (check/searched).

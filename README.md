@@ -98,6 +98,9 @@ claude plugin install harden@harden
 
 (Or, inside a session, `/plugin marketplace add Genterai/harden` and `/plugin install harden@harden`.)
 
+The [Genter](https://github.com/Genterai/genter) marketplace lists harden too: `/plugin marketplace add Genterai/genter`,
+then `/plugin install harden@genter`, next to Genter's own plugin (`genter@genter`).
+
 Any other agent that reads [Agent Skills](https://agentskills.io): copy [`skills/hardening-changes/`](skills/hardening-changes)
 into its skills folder; it needs a shell with `npx` for genter-cli. On claude.ai, upload that folder
 as a ZIP in your skills settings.
@@ -176,7 +179,8 @@ fails the day a red line loses its test.
 
 Most of the cost of a brief is finding what already exists and what was already decided. The skill runs
 [genter-cli](https://github.com/Genterai/genter) for that, always, with `npx -y genter-cli@0.3 ask "<question>"`: no
-keys, no install, no server to set up. It resolves a question to the place its answer is written (a
+keys, no install, no server to set up (the pin moves to `@0.4` once genter-cli 0.4 is on npm). It resolves a question
+to the place its answer is written (a
 file and its lines) and reads that place again at every question, so a brief never cites a stale copy. The principle is
 the same as a brief's Sources: reference the truth, never copy it.
 
@@ -196,22 +200,25 @@ back to `grep` and `git log`. More: [docs/with-genter.md](docs/with-genter.md).
 ## Genter Cloud: the decisions behind the code
 
 Why the code does what it does is usually written in a ticket, a Slack thread or an email. [Genter Cloud](https://genter.ai)
-connects GitHub, Linear, Slack, Gmail, Notion and 500 more apps, keeps them current from their own events, and the
-same `genter-cli ask` then searches your repository first and your apps second. It is optional.
+connects GitHub, Linear, Slack, Gmail, Notion and 500 more apps and keeps them current from their own events. It is
+optional, and it is its own MCP server in your AI tool: genter-cli searches your repository, and Genter Cloud's
+`search` and `read` search your apps.
 
 1. Sign up at [genter.ai](https://genter.ai) and connect the apps where your team decides things.
-2. Make a token in Settings → API tokens.
-3. Sign in once. Every `npx genter-cli ask` picks it up:
+2. Add Genter Cloud to your AI tool as its own MCP server at `https://genter.ai/api/mcp`. The tool signs you in with
+   OAuth the first time, and no token is kept on your disk. In Claude Code:
 
    ```bash
-   npx genter-cli login gnt_...    # or export GENTER_TOKEN=gnt_...
+   claude mcp add --transport http genter-cloud https://genter.ai/api/mcp
    ```
 
-4. Ask for a change as before. A brief's Sources now cite the ticket and the thread a rule came from. A question that
+   Claude, ChatGPT, Cursor, VS Code and other clients that take a remote MCP server add the same address.
+3. Ask for a change as before. A brief's Sources now cite the ticket and the thread a rule came from. A question that
    was already answered in chat becomes `Decided:` with who decided it and when, instead of reaching you again.
 
-Genter Cloud also gives each agent its own MCP URL with `search` and `read`, for a person's own MCP client; the skill
-itself always goes through genter-cli.
+genter-cli 0.3's `login` and `GENTER_TOKEN` no longer reach Genter Cloud (genter.ai answers 404 where they pointed),
+and genter-cli 0.4 removes them. If you signed in before, run `npx -y genter-cli@0.3 logout` and remove `GENTER_TOKEN`
+from your environment: 0.3 still sends the token with every `ask`, and it no longer does anything.
 
 ## Try it on the example
 
