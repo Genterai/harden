@@ -83,7 +83,9 @@ claude mcp add --transport http genter-cloud https://genter.ai/api/mcp
 
 The agent then searches your folders with `genter-cli ask` and your apps with Genter Cloud's `search` and `read`: the
 ticket a request came from, the thread where the rule was decided. genter-cli 0.3's `login` and `GENTER_TOKEN` no
-longer reach Genter Cloud, and genter-cli 0.4 removes them.
+longer reach Genter Cloud, and genter-cli 0.4 removes them. If you signed in before, run `npx -y genter-cli@0.3 logout`
+and remove `GENTER_TOKEN` from your environment: 0.3 still sends the token with every `ask`, and it no longer does
+anything.
 
 **From the Genter marketplace.** `/plugin marketplace add Genterai/genter` lists harden too (`/plugin install
 harden@genter`), next to Genter's own plugin (`genter@genter`).

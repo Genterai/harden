@@ -217,7 +217,8 @@ optional, and it is its own MCP server in your AI tool: genter-cli searches your
    was already answered in chat becomes `Decided:` with who decided it and when, instead of reaching you again.
 
 genter-cli 0.3's `login` and `GENTER_TOKEN` no longer reach Genter Cloud (genter.ai answers 404 where they pointed),
-and genter-cli 0.4 removes them.
+and genter-cli 0.4 removes them. If you signed in before, run `npx -y genter-cli@0.3 logout` and remove `GENTER_TOKEN`
+from your environment: 0.3 still sends the token with every `ask`, and it no longer does anything.
 
 ## Try it on the example
 

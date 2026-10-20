@@ -8,7 +8,8 @@ observe:
 
 1. Find the areas of what you touch: `grep -rl "<path you touch>" harden/redlines`, and read their red lines.
 2. Find what exists and what was decided with genter-cli, always: `npx -y genter-cli@0.3 ask "<question>"` (the code,
-   tests, earlier briefs, docs; signed in to Genter Cloud, tickets and chats too). An answer found is a Source, not a
+   tests, earlier briefs, docs). With Genter Cloud added to your AI tool as its own MCP server at
+   `https://genter.ai/api/mcp`, its `search` and `read` reach tickets and chats too. An answer found is a Source, not a
    question. The brief's `Searched:` line says what you asked.
 3. Write the brief (`harden new "<title>"`). A blocking question (what a person sees, the data model, a contract,
    access, privacy, anything hard to reverse; in doubt, blocking) goes to the owner with a proposal, and that part of

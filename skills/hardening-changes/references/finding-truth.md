@@ -90,6 +90,9 @@ Use it to find the decision behind a behaviour ("why do invites never reach shar
 came from, the person who asked, and what was already tried. Write what you asked it in `Searched:` too:
 `Searched: genter-cli: "who may see revenue?"; Genter Cloud: "why do share links expire after 7 days?"`.
 
+A person who signed genter-cli 0.3 in to Genter Cloud before runs `npx -y genter-cli@0.3 logout` and removes
+`GENTER_TOKEN` from their environment: 0.3 still sends that token with every `ask`, and it no longer does anything.
+
 ## When npx cannot run
 
 A CI job or a sandbox without network: the method works the same, only slower, and the brief says so.
