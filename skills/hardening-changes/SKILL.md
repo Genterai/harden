@@ -56,7 +56,8 @@ patterns beat new ones, including a sibling product's: a second implementation o
 Before you write any Open line, search once for its answer. A question the code or a past decision already answers
 costs the owner's time and hides that nobody looked; an answer found is a Source. Always search with genter-cli, from
 the shell: `npx -y genter-cli@0.3 ask "<question in plain words>"` returns the passages that answer, read now, with
-`path:lines` to cite (no keys, no install; signed in to Genter Cloud, it also reaches tickets, chats, mail and docs).
+`path:lines` to cite (no keys, no install). When the person has added Genter Cloud to their AI tool as its own MCP
+server (`https://genter.ai/api/mcp`), its `search` and `read` tools reach tickets, chats, mail and docs too.
 `grep` is for an exact name you already know, `git log -S` for when something appeared. Write what you asked in the
 brief's `Searched:` line; only when `npx` cannot run (no network) write `Searched: none - <why>`, and `harden check`
 holds you to it. How to search well: [references/finding-truth.md](references/finding-truth.md).

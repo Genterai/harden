@@ -43,6 +43,9 @@ npx -y genter-cli@0.3 add ../sibling-repo https://example.com/docs  # search the
 npx -y genter-cli@0.3 sources                                       # what is searched
 ```
 
+The pin is `@0.3`, the minor on npm today; it moves to `@0.4` with the plugin version that follows genter-cli 0.4's
+release.
+
 | Command | Use it for |
 | -- | -- |
 | `ask "<question>"` | the passages that answer, read now, with `path:lines` (`--limit N`, `--json`) |
@@ -67,12 +70,16 @@ new text.
 ## With Genter Cloud: tickets, chats, mail and docs too
 
 Decisions rarely live only in code. [Genter Cloud](https://genter.ai) connects GitHub, Linear, Slack, Gmail, Notion
-and many more, and keeps them current from their own events. Two ways in:
+and many more, and keeps them current from their own events. Add it to your AI tool as its own MCP server at
+`https://genter.ai/api/mcp`; the tool signs in with OAuth the first time, and no token is kept on your disk. In Claude
+Code:
 
-* **Through genter-cli**: make a token in Genter Cloud (Settings → API tokens), run `npx -y genter-cli@0.3 login gnt_...`
-  once (or set `GENTER_TOKEN`), and the same `ask` finds in your folders first, then in your apps (`--cloud` for only
-  your apps). This is the way the skill uses.
-* **Its own MCP URL**, with two tools, for a person's own MCP client:
+```bash
+claude mcp add --transport http genter-cloud https://genter.ai/api/mcp
+```
+
+Claude, ChatGPT, Cursor, VS Code and other clients that take a remote MCP server add the same address. genter-cli
+does not reach Genter Cloud: `ask` searches your folders, and Genter Cloud's own two tools search your apps:
 
 | Tool | Use it for |
 | -- | -- |
@@ -80,7 +87,8 @@ and many more, and keeps them current from their own events. Two ways in:
 | `read` | up to 10 results, read live from their apps |
 
 Use it to find the decision behind a behaviour ("why do invites never reach shared apps?"), the ticket a bug report
-came from, the person who asked, and what was already tried.
+came from, the person who asked, and what was already tried. Write what you asked it in `Searched:` too:
+`Searched: genter-cli: "who may see revenue?"; Genter Cloud: "why do share links expire after 7 days?"`.
 
 ## When npx cannot run
 
